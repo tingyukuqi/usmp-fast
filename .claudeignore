@@ -1,0 +1,15 @@
+# 依赖文件
+*.lock
+package-lock.json
+# 版本控制
+.git/
+.idea/
+.vscode/
+# 资源文件
+*.png
+*.jpg
+*.svg
+# 缓存与日志
+.cache/
+coverage/
+*.log 

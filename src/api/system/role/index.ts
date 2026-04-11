@@ -1,7 +1,7 @@
 import { UserVO } from '@/api/system/user/types';
 import { UserQuery } from '@/api/system/user/types';
 import { AxiosPromise } from 'axios';
-import { RoleQuery, RoleVO, RoleDeptTree } from './types';
+import { RoleQuery, RoleVO, RoleDeptTree, RoleEffectiveMenu } from './types';
 import request from '@/utils/request';
 
 export const listRole = (query: RoleQuery): AxiosPromise<RoleVO[]> => {
@@ -151,6 +151,48 @@ export const deptTreeSelect = (roleId: string | number): AxiosPromise<RoleDeptTr
   return request({
     url: '/system/role/deptTree/' + roleId,
     method: 'get'
+  });
+};
+
+/**
+ * 获取角色树形结构（用于父角色选择器）
+ */
+export const getRoleTree = (): AxiosPromise<RoleVO[]> => {
+  return request({
+    url: '/system/role/tree',
+    method: 'get'
+  });
+};
+
+/**
+ * 获取角色有效菜单列表（含继承标记）
+ */
+export const getRoleEffectiveMenus = (roleId: string | number): AxiosPromise<RoleEffectiveMenu[]> => {
+  return request({
+    url: '/system/role/' + roleId + '/effective-menus',
+    method: 'get'
+  });
+};
+
+/**
+ * 批量隐藏继承菜单
+ */
+export const hideInheritedMenus = (roleId: string | number, menuIds: Array<string | number>) => {
+  return request({
+    url: '/system/role/' + roleId + '/hide-menus',
+    method: 'put',
+    data: menuIds
+  });
+};
+
+/**
+ * 批量恢复继承菜单
+ */
+export const restoreInheritedMenus = (roleId: string | number, menuIds: Array<string | number>) => {
+  return request({
+    url: '/system/role/' + roleId + '/restore-menus',
+    method: 'put',
+    data: menuIds
   });
 };
 

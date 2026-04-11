@@ -61,6 +61,11 @@
         <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150" />
         <el-table-column label="权限字符" prop="roleKey" :show-overflow-tooltip="true" width="200" />
         <el-table-column label="显示顺序" prop="roleSort" width="100" />
+        <el-table-column label="父角色" prop="parentRoleName" :show-overflow-tooltip="true" width="120">
+          <template #default="scope">
+            <span>{{ scope.row.parentRoleName || '-' }}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="状态" align="center" width="100">
           <template #default="scope">
             <el-switch v-model="scope.row.status" active-value="0" inactive-value="1" @change="handleStatusChange(scope.row)"></el-switch>
@@ -118,9 +123,33 @@
         <el-form-item label="角色顺序" prop="roleSort">
           <el-input-number v-model="form.roleSort" controls-position="right" :min="0" />
         </el-form-item>
+        <el-form-item label="父角色" prop="parentId">
+          <el-tree-select
+            v-model="form.parentId"
+            :data="roleTreeOptions"
+            :props="{ label: 'roleName', value: 'roleId', children: 'children' }"
+            placeholder="不选择则为顶级角色"
+            check-strictly
+            filterable
+            clearable
+            style="width: 100%"
+            @change="onParentRoleChange"
+          />
+        </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
             <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">{{ dict.label }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="数据权限">
+          <el-select v-model="form.dataScope" placeholder="请选择数据权限">
+            <el-option v-for="item in dataScopeOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="form.parentId" label="权限继承">
+          <el-radio-group v-model="inheritMenuEnabled" @change="onInheritToggle">
+            <el-radio :value="true">继承上级菜单</el-radio>
+            <el-radio :value="false">仅自有菜单</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="菜单权限">
@@ -159,10 +188,16 @@
         <el-form-item label="权限字符">
           <el-input v-model="form.roleKey" :disabled="true" />
         </el-form-item>
+        <el-form-item v-if="form.parentId" label="父角色">
+          <el-input :model-value="findRoleFromTree(roleTreeOptions, form.parentId)?.roleName || '-'" :disabled="true" />
+        </el-form-item>
         <el-form-item label="权限范围">
           <el-select v-model="form.dataScope" @change="dataScopeSelectChange">
             <el-option v-for="item in dataScopeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
+          <div v-if="form.parentId" style="font-size: 12px; color: var(--el-text-color-secondary); margin-top: 4px;">
+            子角色数据权限不能超过父角色范围
+          </div>
         </el-form-item>
         <el-form-item v-show="form.dataScope === '2'" label="数据权限">
           <el-checkbox v-model="deptExpand" @change="handleCheckedTreeExpand($event, 'dept')">展开/折叠</el-checkbox>
@@ -192,9 +227,9 @@
 </template>
 
 <script setup name="Role" lang="ts">
-import { addRole, changeRoleStatus, dataScope, delRole, getRole, listRole, updateRole, deptTreeSelect } from '@/api/system/role';
+import { addRole, changeRoleStatus, dataScope, delRole, getRole, listRole, updateRole, deptTreeSelect, getRoleTree, getRoleEffectiveMenus } from '@/api/system/role';
 import { roleMenuTreeselect, treeselect as menuTreeselect } from '@/api/system/menu/index';
-import { RoleVO, RoleForm, RoleQuery, DeptTreeOption } from '@/api/system/role/types';
+import { RoleVO, RoleForm, RoleQuery, DeptTreeOption, RoleEffectiveMenu, DATA_SCOPE_ALLOWED_MAP } from '@/api/system/role/types';
 import { MenuTreeOption, RoleMenuTree } from '@/api/system/menu/types';
 
 const router = useRouter();
@@ -216,9 +251,16 @@ const deptExpand = ref(true);
 const deptNodeAll = ref(false);
 const deptOptions = ref<DeptTreeOption[]>([]);
 const openDataScope = ref(false);
-
-/** 数据范围选项*/
-const dataScopeOptions = ref([
+/** 角色树数据（用于父角色选择器） */
+const roleTreeOptions = ref<RoleVO[]>([]);
+/** 继承开关：是否继承父角色菜单权限 */
+const inheritMenuEnabled = ref(true);
+/** 父角色的有效菜单列表（用于标记继承来源） */
+const parentEffectiveMenus = ref<RoleEffectiveMenu[]>([]);
+/** 当前角色的有效菜单列表（编辑模式） */
+const currentEffectiveMenus = ref<RoleEffectiveMenu[]>([]);
+/** 可用的 dataScope 选项（受父角色约束） */
+const availableDataScopeOptions = ref([
   { value: '1', label: '全部数据权限' },
   { value: '2', label: '自定数据权限' },
   { value: '3', label: '本部门数据权限' },
@@ -226,6 +268,19 @@ const dataScopeOptions = ref([
   { value: '5', label: '仅本人数据权限' },
   { value: '6', label: '部门及以下或本人数据权限' }
 ]);
+
+/** 数据范围选项（受父角色约束时动态过滤） */
+const dataScopeOptions = computed(() => {
+  if (form.value.parentId) {
+    // 查找父角色的 dataScope
+    const parentRole = findRoleFromTree(roleTreeOptions.value, form.value.parentId);
+    if (parentRole?.dataScope) {
+      const allowed = DATA_SCOPE_ALLOWED_MAP[parentRole.dataScope] || ['1', '2', '3', '4', '5', '6'];
+      return availableDataScopeOptions.value.filter(item => allowed.includes(item.value));
+    }
+  }
+  return availableDataScopeOptions.value;
+});
 
 const queryFormRef = ref<ElFormInstance>();
 const roleFormRef = ref<ElFormInstance>();
@@ -244,7 +299,9 @@ const initForm: RoleForm = {
   remark: '',
   dataScope: '1',
   menuIds: [],
-  deptIds: []
+  deptIds: [],
+  parentId: null,
+  hiddenMenuIds: []
 };
 
 const data = reactive<PageData<RoleForm, RoleQuery>>({
@@ -268,6 +325,111 @@ const dialog = reactive<DialogOption>({
   visible: false,
   title: ''
 });
+
+/**
+ * 从角色树中递归查找角色
+ */
+const findRoleFromTree = (tree: RoleVO[], id: string | number): RoleVO | null => {
+  for (const node of tree) {
+    if (node.roleId == id) return node;
+    if (node.children?.length) {
+      const found = findRoleFromTree(node.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
+/**
+ * 获取角色及所有子孙角色ID（用于排除循环引用）
+ */
+const getDescendantIds = (tree: RoleVO[], id: string | number): Array<string | number> => {
+  const role = findRoleFromTree(tree, id);
+  if (!role?.children?.length) return [];
+  const ids: Array<string | number> = [];
+  const collect = (nodes: RoleVO[]) => {
+    for (const node of nodes) {
+      ids.push(node.roleId);
+      if (node.children?.length) collect(node.children);
+    }
+  };
+  collect(role.children);
+  return ids;
+};
+
+/**
+ * 加载角色树数据
+ */
+const loadRoleTree = async () => {
+  const res = await getRoleTree();
+  roleTreeOptions.value = res.data || [];
+};
+
+/**
+ * 当父角色变更时，加载父角色的有效菜单并刷新菜单树显示
+ */
+const onParentRoleChange = async (parentId: string | number | null) => {
+  parentEffectiveMenus.value = [];
+  if (!parentId) {
+    // 无父角色，清除继承标记
+    refreshMenuTreeDisplay();
+    return;
+  }
+  // 校正 dataScope：如果当前值不在父角色允许范围内，自动降级到父角色的值
+  nextTick(() => {
+    const allowed = dataScopeOptions.value.map(o => o.value);
+    if (form.value.dataScope && !allowed.includes(form.value.dataScope)) {
+      form.value.dataScope = allowed[allowed.length - 1] || '5';
+    }
+  });
+  // 加载父角色的有效菜单
+  const res = await getRoleEffectiveMenus(parentId);
+  parentEffectiveMenus.value = res.data || [];
+  // 如果继承开关开启，刷新菜单树
+  if (inheritMenuEnabled.value) {
+    refreshMenuTreeDisplay();
+  }
+};
+
+/**
+ * 继承开关变更
+ */
+const onInheritToggle = () => {
+  refreshMenuTreeDisplay();
+};
+
+/**
+ * 刷新菜单树的继承标记显示
+ * 将继承的菜单标记为 checked（灰色），自有菜单保持正常勾选
+ */
+const refreshMenuTreeDisplay = () => {
+  if (!menuRef.value) return;
+  // 先清除所有勾选
+  menuRef.value.setCheckedKeys([]);
+  // 收集自有菜单（编辑模式下从 currentEffectiveMenus 获取）
+  const ownMenuIds: Array<string | number> = [];
+  if (currentEffectiveMenus.value.length > 0) {
+    currentEffectiveMenus.value.forEach(em => {
+      if (em.source === 'OWN') ownMenuIds.push(em.menuId);
+    });
+  }
+  // 设置自有菜单勾选
+  nextTick(() => {
+    ownMenuIds.forEach(id => {
+      menuRef.value?.setChecked(id, true, false);
+    });
+    // 如果开启继承，将父角色的继承菜单也勾选上
+    if (inheritMenuEnabled.value && parentEffectiveMenus.value.length > 0) {
+      // 获取当前隐藏的菜单ID
+      const hiddenIds = new Set(form.value.hiddenMenuIds || []);
+      parentEffectiveMenus.value.forEach(em => {
+        if (!hiddenIds.has(em.menuId)) {
+          menuRef.value?.setChecked(em.menuId, true, false);
+        }
+      });
+    }
+  });
+};
 
 /**
  * 查询角色列表
@@ -363,12 +525,16 @@ const reset = () => {
   deptNodeAll.value = false;
   form.value = { ...initForm };
   roleFormRef.value?.resetFields();
+  inheritMenuEnabled.value = true;
+  parentEffectiveMenus.value = [];
+  currentEffectiveMenus.value = [];
 };
 
 /** 添加角色 */
-const handleAdd = () => {
+const handleAdd = async () => {
   reset();
-  getMenuTreeselect();
+  await getMenuTreeselect();
+  await loadRoleTree();
   dialog.visible = true;
   dialog.title = '添加角色';
 };
@@ -379,9 +545,26 @@ const handleUpdate = async (row?: RoleVO) => {
   const { data } = await getRole(roleId);
   Object.assign(form.value, data);
   form.value.roleSort = Number(form.value.roleSort);
+  // 加载角色树
+  await loadRoleTree();
+  // 加载菜单树
   const res = await getRoleMenuTreeselect(roleId);
   dialog.title = '修改角色';
   dialog.visible = true;
+  // 加载有效菜单数据（含继承标记）
+  try {
+    const emRes = await getRoleEffectiveMenus(roleId);
+    currentEffectiveMenus.value = emRes.data || [];
+    // 如果有父角色，加载父角色有效菜单
+    if (form.value.parentId) {
+      const parentRes = await getRoleEffectiveMenus(form.value.parentId);
+      parentEffectiveMenus.value = parentRes.data || [];
+    }
+  } catch {
+    currentEffectiveMenus.value = [];
+    parentEffectiveMenus.value = [];
+  }
+  // 设置菜单树勾选
   res.checkedKeys.forEach((v) => {
     nextTick(() => {
       menuRef.value?.setChecked(v, true, false);
@@ -451,6 +634,17 @@ const submitForm = () => {
   roleFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       form.value.menuIds = getMenuAllCheckedKeys();
+      // 计算隐藏的继承菜单：父角色有但当前未勾选的继承菜单
+      if (form.value.parentId && parentEffectiveMenus.value.length > 0) {
+        const checkedKeys = new Set(form.value.menuIds.map(String));
+        const hiddenIds: Array<string | number> = [];
+        parentEffectiveMenus.value.forEach(em => {
+          if (!checkedKeys.has(String(em.menuId))) {
+            hiddenIds.push(em.menuId);
+          }
+        });
+        form.value.hiddenMenuIds = hiddenIds;
+      }
       form.value.roleId ? await updateRole(form.value) : await addRole(form.value);
       proxy?.$modal.msgSuccess('操作成功');
       dialog.visible = false;
@@ -471,6 +665,7 @@ const dataScopeSelectChange = (value: string) => {
 };
 /** 分配数据权限操作 */
 const handleDataScope = async (row: RoleVO) => {
+  await loadRoleTree();
   const response = await getRole(row.roleId);
   Object.assign(form.value, response.data);
   const res = await getRoleDeptTreeSelect(row.roleId);
