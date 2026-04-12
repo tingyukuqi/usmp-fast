@@ -3,34 +3,46 @@
     <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
       <div v-show="showSearch" class="mb-[10px]">
         <el-card shadow="hover">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="角色名称" prop="roleName">
-              <el-input v-model="queryParams.roleName" placeholder="请输入角色名称" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="权限字符" prop="roleKey">
-              <el-input v-model="queryParams.roleKey" placeholder="请输入权限字符" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-select v-model="queryParams.status" placeholder="角色状态" clearable>
-                <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="创建时间" style="width: 308px">
-              <el-date-picker
-                v-model="dateRange"
-                value-format="YYYY-MM-DD HH:mm:ss"
-                type="daterange"
-                range-separator="-"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
-              ></el-date-picker>
-            </el-form-item>
-
-            <el-form-item>
-              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-            </el-form-item>
+          <el-form ref="queryFormRef" :model="queryParams" label-width="68px">
+            <el-row :gutter="16">
+              <el-col :span="5">
+                <el-form-item label="角色名称" prop="roleName">
+                  <el-input v-model="queryParams.roleName" placeholder="请输入角色名称" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="5">
+                <el-form-item label="权限字符" prop="roleKey">
+                  <el-input v-model="queryParams.roleKey" placeholder="请输入权限字符" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
+                <el-form-item label="状态" prop="status">
+                  <el-select v-model="queryParams.status" placeholder="角色状态" clearable style="width: 100%">
+                    <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="7">
+                <el-form-item label="创建时间" prop="dateRange">
+                  <el-date-picker
+                    v-model="dateRange"
+                    value-format="YYYY-MM-DD HH:mm:ss"
+                    type="daterange"
+                    range-separator="-"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    style="width: 100%"
+                    :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="3">
+                <el-form-item label-width="0">
+                  <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+                  <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-form>
         </el-card>
       </div>
@@ -432,15 +444,34 @@ const refreshMenuTreeDisplay = () => {
 };
 
 /**
+ * 从角色树中查找角色名称
+ */
+const resolveRoleName = (tree: RoleVO[], id: string | number): string => {
+  const role = findRoleFromTree(tree, id);
+  return role?.roleName || '';
+};
+
+/**
  * 查询角色列表
  */
-const getList = () => {
+const getList = async () => {
   loading.value = true;
-  listRole(proxy?.addDateRange(queryParams.value, dateRange.value)).then((res) => {
-    roleList.value = res.rows;
-    total.value = res.total;
-    loading.value = false;
-  });
+  const res = await listRole(proxy?.addDateRange(queryParams.value, dateRange.value));
+  roleList.value = res.rows;
+  total.value = res.total;
+  // 如果角色树尚未加载，加载后填充 parentRoleName
+  if (roleTreeOptions.value.length === 0) {
+    await loadRoleTree();
+  }
+  // 从树数据中解析父角色名称
+  if (roleList.value) {
+    roleList.value.forEach(role => {
+      if (role.parentId && !role.parentRoleName) {
+        role.parentRoleName = resolveRoleName(roleTreeOptions.value, role.parentId);
+      }
+    });
+  }
+  loading.value = false;
 };
 
 /**

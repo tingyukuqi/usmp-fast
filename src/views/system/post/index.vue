@@ -23,41 +23,50 @@
         <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
           <div v-show="showSearch" class="mb-[10px]">
             <el-card shadow="hover">
-              <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-                <el-form-item label="岗位编码" prop="postCode">
-                  <el-input v-model="queryParams.postCode" placeholder="请输入岗位编码" clearable @keyup.enter="handleQuery" />
-                </el-form-item>
-                <el-form-item label="类别编码" prop="postCategory">
-                  <el-input
-                    v-model="queryParams.postCategory"
-                    placeholder="请输入类别编码"
-                    clearable
-                    style="width: 200px"
-                    @keyup.enter="handleQuery"
-                  />
-                </el-form-item>
-                <el-form-item label="岗位名称" prop="postName">
-                  <el-input v-model="queryParams.postName" placeholder="请输入岗位名称" clearable @keyup.enter="handleQuery" />
-                </el-form-item>
-                <el-form-item label="部门" prop="deptId">
-                  <el-tree-select
-                    v-model="queryParams.deptId"
-                    :data="deptOptions"
-                    :props="{ value: 'id', label: 'label', children: 'children' } as any"
-                    value-key="id"
-                    placeholder="请选择部门"
-                    check-strictly
-                  />
-                </el-form-item>
-                <el-form-item label="状态" prop="status">
-                  <el-select v-model="queryParams.status" placeholder="岗位状态" clearable>
-                    <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
-                  </el-select>
-                </el-form-item>
-                <el-form-item>
-                  <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-                  <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-                </el-form-item>
+              <el-form ref="queryFormRef" :model="queryParams" label-width="68px">
+                <el-row :gutter="12">
+                  <el-col :span="4">
+                    <el-form-item label="岗位编码" prop="postCode">
+                      <el-input v-model="queryParams.postCode" placeholder="请输入岗位编码" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="4">
+                    <el-form-item label="类别编码" prop="postCategory">
+                      <el-input v-model="queryParams.postCategory" placeholder="请输入类别编码" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="4">
+                    <el-form-item label="岗位名称" prop="postName">
+                      <el-input v-model="queryParams.postName" placeholder="请输入岗位名称" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="4">
+                    <el-form-item label="部门" prop="deptId">
+                      <el-tree-select
+                        v-model="queryParams.deptId"
+                        :data="deptOptions"
+                        :props="{ value: 'id', label: 'label', children: 'children' } as any"
+                        value-key="id"
+                        placeholder="请选择部门"
+                        check-strictly
+                        style="width: 100%"
+                      />
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="3">
+                    <el-form-item label="状态" prop="status">
+                      <el-select v-model="queryParams.status" placeholder="岗位状态" clearable style="width: 100%">
+                        <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="5">
+                    <el-form-item label-width="0">
+                      <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+                      <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
               </el-form>
             </el-card>
           </div>

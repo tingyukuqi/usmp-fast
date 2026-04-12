@@ -23,37 +23,51 @@
         <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
           <div v-show="showSearch" class="mb-[10px]">
             <el-card shadow="hover">
-              <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-                <el-form-item label="用户名称" prop="userName">
-                  <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable @keyup.enter="handleQuery" />
-                </el-form-item>
-                <el-form-item label="用户昵称" prop="nickName">
-                  <el-input v-model="queryParams.nickName" placeholder="请输入用户昵称" clearable @keyup.enter="handleQuery" />
-                </el-form-item>
-                <el-form-item label="手机号码" prop="phonenumber">
-                  <el-input v-model="queryParams.phonenumber" placeholder="请输入手机号码" clearable @keyup.enter="handleQuery" />
-                </el-form-item>
-
-                <el-form-item label="状态" prop="status">
-                  <el-select v-model="queryParams.status" placeholder="用户状态" clearable>
-                    <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="创建时间" style="width: 308px">
-                  <el-date-picker
-                    v-model="dateRange"
-                    value-format="YYYY-MM-DD HH:mm:ss"
-                    type="daterange"
-                    range-separator="-"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                    :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
-                  ></el-date-picker>
-                </el-form-item>
-                <el-form-item>
-                  <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-                  <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-                </el-form-item>
+              <el-form ref="queryFormRef" :model="queryParams" label-width="68px">
+                <el-row :gutter="12">
+                  <el-col :span="4">
+                    <el-form-item label="用户名称" prop="userName">
+                      <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="4">
+                    <el-form-item label="用户昵称" prop="nickName">
+                      <el-input v-model="queryParams.nickName" placeholder="请输入用户昵称" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="4">
+                    <el-form-item label="手机号码" prop="phonenumber">
+                      <el-input v-model="queryParams.phonenumber" placeholder="请输入手机号码" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="3">
+                    <el-form-item label="状态" prop="status">
+                      <el-select v-model="queryParams.status" placeholder="用户状态" clearable style="width: 100%">
+                        <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="6">
+                    <el-form-item label="创建时间" prop="dateRange">
+                      <el-date-picker
+                        v-model="dateRange"
+                        value-format="YYYY-MM-DD HH:mm:ss"
+                        type="daterange"
+                        range-separator="-"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                        style="width: 100%"
+                        :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
+                      />
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="3">
+                    <el-form-item label-width="0">
+                      <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+                      <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
               </el-form>
             </el-card>
           </div>

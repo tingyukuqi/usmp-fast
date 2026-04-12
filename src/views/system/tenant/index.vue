@@ -3,23 +3,35 @@
     <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
       <div v-show="showSearch" class="mb-[10px]">
         <el-card shadow="hover">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="租户编号" prop="tenantId">
-              <el-input v-model="queryParams.tenantId" placeholder="请输入租户编号" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="联系人" prop="contactUserName">
-              <el-input v-model="queryParams.contactUserName" placeholder="请输入联系人" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="联系电话" prop="contactPhone">
-              <el-input v-model="queryParams.contactPhone" placeholder="请输入联系电话" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="企业名称" prop="companyName">
-              <el-input v-model="queryParams.companyName" placeholder="请输入企业名称" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-            </el-form-item>
+          <el-form ref="queryFormRef" :model="queryParams" label-width="68px">
+            <el-row :gutter="16">
+              <el-col :span="5">
+                <el-form-item label="租户编号" prop="tenantId">
+                  <el-input v-model="queryParams.tenantId" placeholder="请输入租户编号" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="5">
+                <el-form-item label="联系人" prop="contactUserName">
+                  <el-input v-model="queryParams.contactUserName" placeholder="请输入联系人" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="5">
+                <el-form-item label="联系电话" prop="contactPhone">
+                  <el-input v-model="queryParams.contactPhone" placeholder="请输入联系电话" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="5">
+                <el-form-item label="企业名称" prop="companyName">
+                  <el-input v-model="queryParams.companyName" placeholder="请输入企业名称" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
+                <el-form-item label-width="0">
+                  <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+                  <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-form>
         </el-card>
       </div>

@@ -3,33 +3,46 @@
     <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
       <div v-show="showSearch" class="mb-[10px]">
         <el-card shadow="hover">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="参数名称" prop="configName">
-              <el-input v-model="queryParams.configName" placeholder="请输入参数名称" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="参数键名" prop="configKey">
-              <el-input v-model="queryParams.configKey" placeholder="请输入参数键名" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="系统内置" prop="configType">
-              <el-select v-model="queryParams.configType" placeholder="系统内置" clearable>
-                <el-option v-for="dict in sys_yes_no" :key="dict.value" :label="dict.label" :value="dict.value" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="创建时间" style="width: 308px">
-              <el-date-picker
-                v-model="dateRange"
-                value-format="YYYY-MM-DD HH:mm:ss"
-                type="daterange"
-                range-separator="-"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
-              ></el-date-picker>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-            </el-form-item>
+          <el-form ref="queryFormRef" :model="queryParams" label-width="68px">
+            <el-row :gutter="16">
+              <el-col :span="5">
+                <el-form-item label="参数名称" prop="configName">
+                  <el-input v-model="queryParams.configName" placeholder="请输入参数名称" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="5">
+                <el-form-item label="参数键名" prop="configKey">
+                  <el-input v-model="queryParams.configKey" placeholder="请输入参数键名" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
+                <el-form-item label="系统内置" prop="configType">
+                  <el-select v-model="queryParams.configType" placeholder="系统内置" clearable style="width: 100%">
+                    <el-option v-for="dict in sys_yes_no" :key="dict.value" :label="dict.label" :value="dict.value" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="7">
+                <el-form-item label="创建时间" prop="dateRange">
+                  <el-date-picker
+                    v-model="dateRange"
+                    value-format="YYYY-MM-DD HH:mm:ss"
+                    type="daterange"
+                    range-separator="-"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    style="width: 100%"
+                    :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="3">
+                <el-form-item label-width="0">
+                  <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+                  <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-form>
         </el-card>
       </div>

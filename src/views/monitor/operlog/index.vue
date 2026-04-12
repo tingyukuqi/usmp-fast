@@ -3,41 +3,60 @@
     <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
       <div v-show="showSearch" class="mb-[10px]">
         <el-card shadow="hover">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="操作地址" prop="operIp">
-              <el-input v-model="queryParams.operIp" placeholder="请输入操作地址" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="系统模块" prop="title">
-              <el-input v-model="queryParams.title" placeholder="请输入系统模块" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="操作人员" prop="operName">
-              <el-input v-model="queryParams.operName" placeholder="请输入操作人员" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="类型" prop="businessType">
-              <el-select v-model="queryParams.businessType" placeholder="操作类型" clearable>
-                <el-option v-for="dict in sys_oper_type" :key="dict.value" :label="dict.label" :value="dict.value" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-select v-model="queryParams.status" placeholder="操作状态" clearable>
-                <el-option v-for="dict in sys_common_status" :key="dict.value" :label="dict.label" :value="dict.value" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="操作时间" style="width: 308px">
-              <el-date-picker
-                v-model="dateRange"
-                value-format="YYYY-MM-DD HH:mm:ss"
-                type="daterange"
-                range-separator="-"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
-              ></el-date-picker>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-            </el-form-item>
+          <el-form ref="queryFormRef" :model="queryParams" label-width="68px">
+            <el-row :gutter="16">
+              <el-col :span="4">
+                <el-form-item label="操作地址" prop="operIp">
+                  <el-input v-model="queryParams.operIp" placeholder="请输入操作地址" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
+                <el-form-item label="系统模块" prop="title">
+                  <el-input v-model="queryParams.title" placeholder="请输入系统模块" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
+                <el-form-item label="操作人员" prop="operName">
+                  <el-input v-model="queryParams.operName" placeholder="请输入操作人员" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="3">
+                <el-form-item label="类型" prop="businessType">
+                  <el-select v-model="queryParams.businessType" placeholder="操作类型" clearable style="width: 100%">
+                    <el-option v-for="dict in sys_oper_type" :key="dict.value" :label="dict.label" :value="dict.value" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="3">
+                <el-form-item label="状态" prop="status">
+                  <el-select v-model="queryParams.status" placeholder="操作状态" clearable style="width: 100%">
+                    <el-option v-for="dict in sys_common_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="操作时间" prop="dateRange">
+                  <el-date-picker
+                    v-model="dateRange"
+                    value-format="YYYY-MM-DD HH:mm:ss"
+                    type="daterange"
+                    range-separator="-"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    style="width: 100%"
+                    :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row :gutter="16">
+              <el-col :span="24">
+                <el-form-item label-width="0">
+                  <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+                  <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-form>
         </el-card>
       </div>
