@@ -88,13 +88,27 @@ export const constantRoutes: RouteRecordRaw[] = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
+  },
+  {
+    path: '/supply',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'cloud-platform/tenant-manage/:platformId',
+        component: () => import('@/views/supply/cloudPlatform/tenantManage.vue'),
+        name: 'SupplyCloudTenantManage',
+        meta: {
+          title: '云租户管理',
+          activeMenu: '/supply/cloudPlatform'
+        }
+      }
+    ]
   }
 ];
 
 // 动态路由，基于用户权限动态去加载
-export const dynamicRoutes: RouteRecordRaw[] = [
-
-];
+export const dynamicRoutes: RouteRecordRaw[] = [];
 
 /**
  * 创建路由
