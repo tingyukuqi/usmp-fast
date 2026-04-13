@@ -6,7 +6,7 @@
           <el-form ref="queryFormRef" :model="queryParams" label-width="80px">
             <el-row :gutter="12">
               <el-col :span="5">
-                <el-form-item label="所属供应商" prop="supplierId">
+                <el-form-item label="所属供应商" prop="supplierId" label-width="96px" class="supplier-query-item">
                   <el-select v-model="queryParams.supplierId" placeholder="请选择供应商" clearable filterable style="width: 100%">
                     <el-option v-for="item in supplierOptions" :key="item.supplierId" :label="item.supplierName" :value="item.supplierId" />
                   </el-select>
@@ -54,7 +54,7 @@
             </el-row>
             <el-row :gutter="12">
               <el-col :span="4">
-                <el-form-item label-width="0">
+                <el-form-item label-width="0" class="query-actions">
                   <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
                   <el-button icon="Refresh" @click="resetQuery">重置</el-button>
                 </el-form-item>
@@ -523,3 +523,19 @@ onMounted(async () => {
   await Promise.all([getSupplierOptionList(), getList()]);
 });
 </script>
+
+<style scoped lang="scss">
+.supplier-query-item {
+  :deep(.el-form-item__label) {
+    text-align: left;
+    white-space: nowrap;
+  }
+}
+
+.query-actions {
+  :deep(.el-form-item__content) {
+    margin-left: 0 !important;
+    justify-content: flex-start;
+  }
+}
+</style>

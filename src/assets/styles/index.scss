@@ -172,6 +172,44 @@ aside {
   }
 }
 
+// 仅修正查询区 inline 表单的标签换行，不改变按钮和内容布局
+.search .el-form--inline,
+.dict-form-scroll .el-form--inline,
+.mb-\[10px\] > .el-card .el-form--inline,
+.mb-\[12px\] > .el-form.el-form--inline {
+  .el-form-item__label {
+    width: auto;
+    min-width: 68px;
+    padding-right: 12px;
+    white-space: nowrap;
+  }
+
+  .el-form-item {
+    margin-bottom: 12px;
+  }
+}
+
+// 网格型查询栏的操作按钮列保持单行，避免搜索/重置被压缩换行
+.mb-\[10px\] > .el-card .el-form > .el-row > .el-col:last-child {
+  min-width: 188px;
+
+  .el-form-item {
+    margin-bottom: 12px;
+  }
+
+  .el-form-item__content {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .el-button {
+    margin-left: 0;
+  }
+}
+
 .components-container {
   margin: 30px 50px;
   position: relative;
