@@ -8,7 +8,7 @@
 
 | 介绍         | 项目名              | 项目地址                                                                                                                                                                           |
 |------------|:-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 🔥 分布式集群框架 | RuoYi-Vue-Plus   | - [Gitee](https://gitee.com/dromara/RuoYi-Vue-Plus)<br> - [GitHub](https://github.com/dromara/RuoYi-Vue-Plus)<br> - [GitCode](https://gitcode.com/dromara/RuoYi-Vue-Plus)      |
+| 🔥 分布式集群框架 | xxxxxx-云监管平台   | - [Gitee](https://gitee.com/dromara/xxxxxx-云监管平台)<br> - [GitHub](https://github.com/dromara/xxxxxx-云监管平台)<br> - [GitCode](https://gitcode.com/dromara/xxxxxx-云监管平台)      |
 | 🔥 微服务框架   | RuoYi-Cloud-Plus | - [Gitee](https://gitee.com/dromara/RuoYi-Cloud-Plus)<br>- [GitHub](https://github.com/dromara/RuoYi-Cloud-Plus)<br> - [GitCode](https://gitcode.com/dromara/RuoYi-Cloud-Plus) |
 
 ## 分支说明

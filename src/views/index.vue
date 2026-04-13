@@ -2,9 +2,9 @@
   <div class="app-container home">
     <el-row :gutter="20">
       <el-col :sm="24" :lg="12" style="padding-left: 20px">
-        <h2>RuoYi-Vue-Plus多租户管理系统</h2>
+        <h2>xxxxxx-云监管平台多租户管理系统</h2>
         <p>
-          RuoYi-Vue-Plus 是基于 RuoYi-Vue 针对 分布式集群 场景升级(不兼容原框架)
+          xxxxxx-云监管平台 是基于 RuoYi-Vue 针对 分布式集群 场景升级(不兼容原框架)
           <br />
           * 前端开发框架 Vue3、TS、Element Plus<br />
           * 后端开发框架 Spring Boot<br />
@@ -38,9 +38,9 @@
           <el-tag type="danger">&yen;免费开源</el-tag>
         </p>
         <p>
-          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://gitee.com/dromara/RuoYi-Vue-Plus')">访问码云</el-button>
-          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://github.com/dromara/RuoYi-Vue-Plus')">访问GitHub</el-button>
-          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://plus-doc.dromara.org/#/ruoyi-vue-plus/changlog')"
+          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://gitee.com/dromara/xxxxxx-云监管平台')">访问码云</el-button>
+          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://github.com/dromara/xxxxxx-云监管平台')">访问GitHub</el-button>
+          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://plus-doc.dromara.org/#/xxxxxx-云监管平台/changlog')"
             >更新日志</el-button
           >
         </p>

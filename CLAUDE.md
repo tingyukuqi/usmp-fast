@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-USMP 前端 — 基于 RuoYi-Vue-Plus 的多租户管理系统前端，配套后端为 Spring Boot Java 项目。
+USMP 前端 — 基于 xxxxxx-云监管平台 的多租户管理系统前端，配套后端为 Spring Boot Java 项目。
 
 ## 常用命令
 
