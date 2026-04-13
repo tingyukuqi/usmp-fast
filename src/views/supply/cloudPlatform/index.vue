@@ -111,17 +111,17 @@
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-row :gutter="12">
           <el-col :span="12">
-            <el-form-item label="平台编码" prop="platformCode">
+            <el-form-item label="平台编码" prop="platformCode" :required="isFieldRequired('platformCode')">
               <el-input v-model="form.platformCode" placeholder="请输入平台编码" maxlength="64" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="平台名称" prop="platformName">
+            <el-form-item label="平台名称" prop="platformName" :required="isFieldRequired('platformName')">
               <el-input v-model="form.platformName" placeholder="请输入平台名称" maxlength="64" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="平台类型" prop="platformType">
+            <el-form-item label="平台类型" prop="platformType" :required="isFieldRequired('platformType')">
               <el-select
                 v-model="form.platformType"
                 placeholder="请选择平台类型"
@@ -136,7 +136,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="供应商代码" prop="providerCode">
+            <el-form-item label="供应商代码" prop="providerCode" :required="isFieldRequired('providerCode')">
               <el-input v-model="form.providerCode" placeholder="请输入供应商代码" maxlength="64" />
             </el-form-item>
           </el-col>
@@ -161,7 +161,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="接入地址" prop="accessUrl">
+            <el-form-item label="接入地址" prop="accessUrl" :required="isFieldRequired('accessUrl')">
               <el-input v-model="form.accessUrl" placeholder="请输入接入地址" maxlength="255" />
             </el-form-item>
           </el-col>
@@ -198,6 +198,7 @@
 import { resolveData, resolveRows, resolveTotal } from '@/api/supply/common';
 import { addCloudPlatform, delCloudPlatform, getCloudPlatform, listCloudPlatform, updateCloudPlatform } from '@/api/supply/cloudPlatform';
 import { CloudPlatformForm, CloudPlatformQuery, CloudPlatformVO } from '@/api/supply/cloudPlatform/types';
+import { createSupplyValidation } from '@/views/supply/common/validationEngine';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_normal_disable, supply_cloud_platform_type, supply_resource_pool } = toRefs<any>(
@@ -247,10 +248,8 @@ const initFormData = (): CloudPlatformForm => ({
 
 const form = ref<CloudPlatformForm>(initFormData());
 
-const rules = reactive<FormRules<CloudPlatformForm>>({
-  platformCode: [{ required: true, message: '平台编码不能为空', trigger: 'blur' }],
-  platformName: [{ required: true, message: '平台名称不能为空', trigger: 'blur' }]
-});
+const validationScene = computed(() => (form.value.platformId !== undefined ? 'edit' : 'add'));
+const { rules, isFieldRequired, normalizePayload } = createSupplyValidation('cloudPlatform', validationScene, form);
 
 const platformTypeOptions = computed<DictDataOption[]>(() => supply_cloud_platform_type.value || []);
 const resourcePoolOptions = computed<DictDataOption[]>(() => supply_resource_pool.value || []);
@@ -330,10 +329,11 @@ const submitForm = () => {
     if (!valid) return;
     submitting.value = true;
     try {
-      if (form.value.platformId !== undefined) {
-        await updateCloudPlatform(form.value);
+      const payload = normalizePayload() as CloudPlatformForm;
+      if (payload.platformId !== undefined) {
+        await updateCloudPlatform(payload);
       } else {
-        await addCloudPlatform(form.value);
+        await addCloudPlatform(payload);
       }
       proxy?.$modal.msgSuccess('操作成功');
       dialog.visible = false;

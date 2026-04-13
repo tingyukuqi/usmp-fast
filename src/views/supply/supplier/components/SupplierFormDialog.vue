@@ -3,12 +3,12 @@
     <el-form ref="formRef" :model="model" :rules="rules" label-width="110px">
       <el-row :gutter="16">
         <el-col :span="12">
-          <el-form-item label="供应商编码" prop="supplierCode">
+          <el-form-item label="供应商编码" prop="supplierCode" :required="isFieldRequired('supplierCode')">
             <el-input v-model="model.supplierCode" placeholder="请输入供应商编码" maxlength="64" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="供应商名称" prop="supplierName">
+          <el-form-item label="供应商名称" prop="supplierName" :required="isFieldRequired('supplierName')">
             <el-input v-model="model.supplierName" placeholder="请输入供应商名称" maxlength="64" />
           </el-form-item>
         </el-col>
@@ -20,7 +20,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="供应商类型" prop="supplierType">
+          <el-form-item label="供应商类型" prop="supplierType" :required="isFieldRequired('supplierType')">
             <el-input v-model="model.supplierType" placeholder="请输入供应商类型" maxlength="64" />
           </el-form-item>
         </el-col>
@@ -82,6 +82,7 @@
 <script setup name="SupplierFormDialog" lang="ts">
 import { addSupplier, updateSupplier } from '@/api/supply/supplier';
 import { SupplierForm } from '@/api/supply/supplier/types';
+import { createSupplyValidation } from '@/views/supply/common/validationEngine';
 
 interface OptionItem {
   label: string;
@@ -135,39 +136,8 @@ const visible = computed({
 
 const dialogTitle = computed(() => (props.mode === 'edit' ? '修改供应商' : '新增供应商'));
 
-const creditCodeValidator = (_rule: any, value: string, callback: (error?: Error) => void) => {
-  if (!value) {
-    callback();
-    return;
-  }
-  callback(/^[0-9A-Z]{18}$/.test(value) ? undefined : new Error('请输入正确的统一社会信用代码'));
-};
-
-const phoneValidator = (_rule: any, value: string, callback: (error?: Error) => void) => {
-  if (!value) {
-    callback();
-    return;
-  }
-  callback(/^1[3-9]\d{9}$/.test(value) ? undefined : new Error('请输入正确的手机号码'));
-};
-
-const emailValidator = (_rule: any, value: string, callback: (error?: Error) => void) => {
-  if (!value) {
-    callback();
-    return;
-  }
-  callback(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? undefined : new Error('请输入正确的邮箱地址'));
-};
-
-const rules = reactive<FormRules<SupplierForm>>({
-  supplierName: [
-    { required: true, message: '供应商名称不能为空', trigger: 'blur' },
-    { min: 1, max: 64, message: '供应商名称长度必须在 1 到 64 之间', trigger: 'blur' }
-  ],
-  creditCode: [{ validator: creditCodeValidator, trigger: 'blur' }],
-  contactPhone: [{ validator: phoneValidator, trigger: 'blur' }],
-  contactEmail: [{ validator: emailValidator, trigger: ['blur', 'change'] }]
-});
+const validationScene = computed(() => (props.mode === 'edit' ? 'edit' : 'add'));
+const { rules, isFieldRequired, normalizePayload } = createSupplyValidation('supplier', validationScene, model);
 
 const resetModel = () => {
   model.value = {
@@ -190,10 +160,11 @@ const handleSubmit = () => {
     if (!valid) return;
     submitting.value = true;
     try {
-      if (props.mode === 'edit' && model.value.supplierId !== undefined) {
-        await updateSupplier(model.value);
+      const payload = normalizePayload() as SupplierForm;
+      if (props.mode === 'edit' && payload.supplierId !== undefined) {
+        await updateSupplier(payload);
       } else {
-        await addSupplier(model.value);
+        await addSupplier(payload);
       }
       proxy?.$modal.msgSuccess('操作成功');
       emit('success');

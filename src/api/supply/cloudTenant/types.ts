@@ -9,6 +9,8 @@ export interface CloudTenantVO extends BaseEntity {
   bindStatus?: string;
   boundOrgId?: string | number;
   boundOrgName?: string;
+  effectiveTime?: string;
+  invalidTime?: string;
   syncStatus?: string;
   lastSyncTime?: string;
   updateTime?: string;

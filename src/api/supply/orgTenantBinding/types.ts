@@ -6,8 +6,11 @@ export interface OrgTenantBindingVO extends BaseEntity {
   cloudTenantCode?: string;
   cloudTenantName?: string;
   bindStatus?: string;
+  orgId?: string | number;
   boundOrgId?: string | number;
   boundOrgName?: string;
+  effectiveTime?: string;
+  invalidTime?: string;
   bindingRemark?: string;
 }
 
@@ -22,6 +25,10 @@ export interface OrgTenantBindingForm {
   cloudPlatformId?: string | number;
   cloudTenantSnapshotId?: string | number;
   cloudTenantId?: string | number;
+  orgId?: string | number;
   boundOrgId?: string | number;
+  bindStatus?: string;
+  effectiveTime?: string;
+  invalidTime?: string;
   bindingRemark?: string;
 }

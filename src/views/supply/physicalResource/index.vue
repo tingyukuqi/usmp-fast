@@ -148,24 +148,24 @@
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-row :gutter="12">
           <el-col :span="12">
-            <el-form-item label="资源编号" prop="resourceCode">
+            <el-form-item label="资源编号" prop="resourceCode" :required="isFieldRequired('resourceCode')">
               <el-input v-model="form.resourceCode" placeholder="请输入资源编号" maxlength="64" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="所属供应商" prop="supplierId">
+            <el-form-item label="所属供应商" prop="supplierId" :required="isFieldRequired('supplierId')">
               <el-select v-model="form.supplierId" placeholder="请选择供应商" filterable style="width: 100%">
                 <el-option v-for="item in supplierOptions" :key="item.supplierId" :label="item.supplierName" :value="item.supplierId" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="设备名称" prop="deviceName">
+            <el-form-item label="设备名称" prop="deviceName" :required="isFieldRequired('deviceName')">
               <el-input v-model="form.deviceName" placeholder="请输入设备名称" maxlength="100" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="设备类型" prop="deviceType">
+            <el-form-item label="设备类型" prop="deviceType" :required="isFieldRequired('deviceType')">
               <el-select
                 v-model="form.deviceType"
                 placeholder="请选择设备类型"
@@ -185,7 +185,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="序列号" prop="serialNumber">
+            <el-form-item label="序列号" prop="serialNumber" :required="isFieldRequired('serialNumber')">
               <el-input v-model="form.serialNumber" placeholder="请输入序列号" maxlength="128" />
             </el-form-item>
           </el-col>
@@ -195,7 +195,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="资源状态" prop="resourceStatus">
+            <el-form-item label="资源状态" prop="resourceStatus" :required="isFieldRequired('resourceStatus')">
               <el-select v-model="form.resourceStatus" placeholder="请选择资源状态" clearable style="width: 100%">
                 <el-option v-for="item in resourceStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
@@ -280,7 +280,7 @@
 
 <script setup name="PhysicalResource" lang="ts">
 import { globalHeaders } from '@/utils/request';
-import { parseJsonIfPossible, resolveData, resolveRows, resolveTotal, stringifyJsonValue } from '@/api/supply/common';
+import { resolveData, resolveRows, resolveTotal, stringifyJsonValue } from '@/api/supply/common';
 import {
   addPhysicalResource,
   delPhysicalResource,
@@ -291,9 +291,12 @@ import {
 import { PhysicalResourceForm, PhysicalResourceQuery, PhysicalResourceVO } from '@/api/supply/physicalResource/types';
 import { listSupplierOptions } from '@/api/supply/supplier';
 import { SupplierOption } from '@/api/supply/supplier/types';
+import { createSupplyValidation } from '@/views/supply/common/validationEngine';
+import { useUserStore } from '@/store/modules/user';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { supply_device_type } = toRefs<any>(proxy?.useDict('supply_device_type'));
+const userStore = useUserStore();
 
 const loading = ref(false);
 const submitting = ref(false);
@@ -327,7 +330,7 @@ const dialog = reactive<DialogOption>({
 const initFormData = (): PhysicalResourceForm & { specPayload: string } => ({
   resourceId: undefined,
   resourceCode: '',
-  supplierId: undefined,
+  supplierId: userStore.supplierId,
   deviceName: '',
   deviceType: '',
   deviceModel: '',
@@ -354,11 +357,16 @@ const queryParams = reactive<PhysicalResourceQuery>({
   keyword: ''
 });
 
-const rules = reactive<FormRules<typeof form.value>>({
-  resourceCode: [{ required: true, message: '资源编号不能为空', trigger: 'blur' }],
-  supplierId: [{ required: true, message: '所属供应商不能为空', trigger: 'change' }],
-  deviceName: [{ required: true, message: '设备名称不能为空', trigger: 'blur' }]
-});
+const hasBoundSupplier = computed(() => !!userStore.supplierId);
+const validationScene = computed(() => (form.value.resourceId !== undefined ? 'edit' : 'add'));
+const { rules, isFieldRequired, normalizePayload } = createSupplyValidation(
+  'physicalResource',
+  validationScene,
+  form,
+  computed(() => ({
+    hasBoundSupplier: hasBoundSupplier.value
+  }))
+);
 
 const deviceTypeOptions = computed<DictDataOption[]>(() => supply_device_type.value || []);
 
@@ -459,10 +467,7 @@ const submitForm = () => {
     if (!valid) return;
     submitting.value = true;
     try {
-      const payload: PhysicalResourceForm = {
-        ...form.value,
-        specPayload: parseJsonIfPossible(form.value.specPayload)
-      };
+      const payload = normalizePayload() as PhysicalResourceForm;
       if (payload.resourceId !== undefined) {
         await updatePhysicalResource(payload);
       } else {

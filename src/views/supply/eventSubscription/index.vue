@@ -113,43 +113,43 @@
       <el-form ref="formRef" :model="form" :rules="rules" label-width="110px">
         <el-row :gutter="12">
           <el-col :span="12">
-            <el-form-item label="云平台" prop="cloudPlatformId">
+            <el-form-item label="云平台" prop="cloudPlatformId" :required="isFieldRequired('cloudPlatformId')">
               <el-select v-model="form.cloudPlatformId" placeholder="请选择云平台" filterable style="width: 100%">
                 <el-option v-for="item in platformOptions" :key="item.platformId" :label="item.platformName" :value="item.platformId" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="供应商代码" prop="providerCode">
+            <el-form-item label="供应商代码" prop="providerCode" :required="isFieldRequired('providerCode')">
               <el-input v-model="form.providerCode" placeholder="请输入供应商代码" maxlength="64" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="事件范围" prop="eventScope">
+            <el-form-item label="事件范围" prop="eventScope" :required="isFieldRequired('eventScope')">
               <el-select v-model="form.eventScope" placeholder="请选择事件范围" clearable style="width: 100%">
                 <el-option v-for="item in eventScopeOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="接入方式" prop="ingestMode">
+            <el-form-item label="接入方式" prop="ingestMode" :required="isFieldRequired('ingestMode')">
               <el-select v-model="form.ingestMode" placeholder="请选择接入方式" clearable style="width: 100%">
                 <el-option v-for="item in ingestModeOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="主题名称" prop="topicName">
+            <el-form-item label="主题名称" prop="topicName" :required="isFieldRequired('topicName')">
               <el-input v-model="form.topicName" placeholder="请输入主题名称" maxlength="128" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="消费组" prop="consumerGroup">
+            <el-form-item label="消费组" prop="consumerGroup" :required="isFieldRequired('consumerGroup')">
               <el-input v-model="form.consumerGroup" placeholder="请输入消费组" maxlength="128" />
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="回调路径" prop="endpointPath">
+            <el-form-item label="回调路径" prop="endpointPath" :required="isFieldRequired('endpointPath')">
               <el-input v-model="form.endpointPath" placeholder="请输入回调路径" maxlength="255" />
             </el-form-item>
           </el-col>
@@ -169,14 +169,14 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="数据格式" prop="dataFormat">
+            <el-form-item label="数据格式" prop="dataFormat" :required="isFieldRequired('dataFormat')">
               <el-select v-model="form.dataFormat" placeholder="请选择数据格式" clearable style="width: 100%">
                 <el-option v-for="item in dataFormatOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="Schema版本" prop="schemaVersion">
+            <el-form-item label="Schema版本" prop="schemaVersion" :required="isFieldRequired('schemaVersion')">
               <el-input v-model="form.schemaVersion" placeholder="请输入 Schema 版本" maxlength="64" />
             </el-form-item>
           </el-col>
@@ -188,7 +188,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="鉴权载荷" prop="authPayload">
+            <el-form-item label="鉴权载荷" prop="authPayload" :required="isFieldRequired('authPayload')">
               <el-input v-model="form.authPayload" type="textarea" :rows="5" placeholder="请输入鉴权 JSON" />
             </el-form-item>
           </el-col>
@@ -224,6 +224,7 @@ import {
   updateEventSubscription
 } from '@/api/supply/eventSubscription';
 import { EventSubscriptionForm, EventSubscriptionQuery, EventSubscriptionVO } from '@/api/supply/eventSubscription/types';
+import { createSupplyValidation } from '@/views/supply/common/validationEngine';
 import EventLogDialog from './components/EventLogDialog.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -277,11 +278,8 @@ const initFormData = (): EventSubscriptionForm & { authPayload: string } => ({
 
 const form = ref(initFormData());
 
-const rules = reactive<FormRules<typeof form.value>>({
-  cloudPlatformId: [{ required: true, message: '云平台不能为空', trigger: 'change' }],
-  eventScope: [{ required: true, message: '事件范围不能为空', trigger: 'change' }],
-  ingestMode: [{ required: true, message: '接入方式不能为空', trigger: 'change' }]
-});
+const validationScene = computed(() => (form.value.subscriptionId !== undefined ? 'edit' : 'add'));
+const { rules, isFieldRequired, normalizePayload } = createSupplyValidation('eventSubscription', validationScene, form);
 
 const authTypeOptions = computed<DictDataOption[]>(() => supply_auth_type.value || []);
 
@@ -410,10 +408,7 @@ const submitForm = () => {
     if (!valid) return;
     submitting.value = true;
     try {
-      const payload: EventSubscriptionForm = {
-        ...form.value,
-        authPayload: parseJsonIfPossible(form.value.authPayload)
-      };
+      const payload = normalizePayload() as EventSubscriptionForm;
       if (payload.subscriptionId !== undefined) {
         await updateEventSubscription(payload);
       } else {
@@ -431,4 +426,11 @@ const submitForm = () => {
 onMounted(async () => {
   await Promise.all([getPlatformOptionList(), getList()]);
 });
+
+watch(
+  () => [form.value.ingestMode, form.value.authType],
+  () => {
+    formRef.value?.clearValidate(['topicName', 'consumerGroup', 'endpointPath', 'authPayload']);
+  }
+);
 </script>

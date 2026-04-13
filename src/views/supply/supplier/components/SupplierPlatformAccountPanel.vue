@@ -36,10 +36,10 @@
             <el-option v-for="item in platformOptions" :key="item.platformId" :label="item.platformName" :value="item.platformId" />
           </el-select>
         </el-form-item>
-        <el-form-item label="账号名称" prop="accountName">
+        <el-form-item label="账号名称" prop="accountName" :required="isFieldRequired('accountName')">
           <el-input v-model="form.accountName" placeholder="请输入账号名称" maxlength="64" />
         </el-form-item>
-        <el-form-item label="账号标识" prop="accountIdentifier">
+        <el-form-item label="账号标识" prop="accountIdentifier" :required="isFieldRequired('accountIdentifier')">
           <el-input v-model="form.accountIdentifier" placeholder="请输入账号标识" maxlength="128" />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -65,6 +65,7 @@ import {
   updateSupplierPlatformAccount
 } from '@/api/supply/supplier';
 import { CloudPlatformOption, SupplierPlatformAccountForm, SupplierPlatformAccountVO } from '@/api/supply/supplier/types';
+import { createSupplyValidation } from '@/views/supply/common/validationEngine';
 
 interface Props {
   supplierId?: string | number;
@@ -100,11 +101,8 @@ const initFormData = (): SupplierPlatformAccountForm => ({
 
 const form = ref<SupplierPlatformAccountForm>(initFormData());
 
-const rules = reactive<FormRules<SupplierPlatformAccountForm>>({
-  cloudPlatformId: [{ required: true, message: '云平台不能为空', trigger: 'change' }],
-  accountName: [{ required: true, message: '账号名称不能为空', trigger: 'blur' }],
-  accountIdentifier: [{ required: true, message: '账号标识不能为空', trigger: 'blur' }]
-});
+const validationScene = computed(() => (form.value.accountId !== undefined ? 'edit' : 'add'));
+const { rules, isFieldRequired, normalizePayload } = createSupplyValidation('supplierPlatformAccount', validationScene, form);
 
 const resolveRows = <T,>(resp: any): T[] => {
   if (Array.isArray(resp?.rows)) return resp.rows;
@@ -177,10 +175,10 @@ const submitForm = () => {
     submitting.value = true;
     try {
       if (form.value.accountId !== undefined) {
-        await updateSupplierPlatformAccount(form.value);
+        await updateSupplierPlatformAccount(normalizePayload() as SupplierPlatformAccountForm);
       } else {
         await addSupplierPlatformAccount(props.supplierId, {
-          ...form.value,
+          ...(normalizePayload() as SupplierPlatformAccountForm),
           supplierId: props.supplierId
         });
       }

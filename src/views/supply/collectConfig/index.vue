@@ -118,19 +118,19 @@
       <el-form ref="formRef" :model="form" :rules="rules" label-width="110px">
         <el-row :gutter="12">
           <el-col :span="12">
-            <el-form-item label="云平台" prop="cloudPlatformId">
+            <el-form-item label="云平台" prop="cloudPlatformId" :required="isFieldRequired('cloudPlatformId')">
               <el-select v-model="form.cloudPlatformId" placeholder="请选择云平台" filterable style="width: 100%">
                 <el-option v-for="item in platformOptions" :key="item.platformId" :label="item.platformName" :value="item.platformId" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="供应商代码" prop="providerCode">
+            <el-form-item label="供应商代码" prop="providerCode" :required="isFieldRequired('providerCode')">
               <el-input v-model="form.providerCode" placeholder="请输入供应商代码" maxlength="64" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="采集地址" prop="collectUrl">
+            <el-form-item label="采集地址" prop="collectUrl" :required="isFieldRequired('collectUrl')">
               <el-input v-model="form.collectUrl" placeholder="请输入采集地址" maxlength="255" />
             </el-form-item>
           </el-col>
@@ -140,7 +140,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="采集范围" prop="collectScope">
+            <el-form-item label="采集范围" prop="collectScope" :required="isFieldRequired('collectScope')">
               <el-select
                 v-model="form.collectScope"
                 placeholder="请选择采集范围"
@@ -155,26 +155,26 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="采集模式" prop="collectMode">
+            <el-form-item label="采集模式" prop="collectMode" :required="isFieldRequired('collectMode')">
               <el-select v-model="form.collectMode" placeholder="请选择采集模式" clearable style="width: 100%">
                 <el-option v-for="item in collectModeOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="同步策略" prop="syncStrategy">
+            <el-form-item label="同步策略" prop="syncStrategy" :required="isFieldRequired('syncStrategy')">
               <el-select v-model="form.syncStrategy" placeholder="请选择同步策略" clearable style="width: 100%">
                 <el-option v-for="item in syncStrategyOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="连接器编码" prop="connectorCode">
+            <el-form-item label="连接器编码" prop="connectorCode" :required="isFieldRequired('connectorCode')">
               <el-input v-model="form.connectorCode" placeholder="请输入连接器编码" maxlength="64" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="鉴权类型" prop="authType">
+            <el-form-item label="鉴权类型" prop="authType" :required="isFieldRequired('authType')">
               <el-select
                 v-model="form.authType"
                 placeholder="请选择鉴权类型"
@@ -189,7 +189,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="执行周期" prop="executeCycle">
+            <el-form-item label="执行周期" prop="executeCycle" :required="isFieldRequired('executeCycle')">
               <el-input v-model="form.executeCycle" placeholder="请输入执行周期，如 6h" maxlength="64" />
             </el-form-item>
           </el-col>
@@ -212,7 +212,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="鉴权载荷" prop="authPayload">
+            <el-form-item label="鉴权载荷" prop="authPayload" :required="isFieldRequired('authPayload')">
               <el-input v-model="form.authPayload" type="textarea" :rows="4" placeholder="请输入鉴权 JSON" />
             </el-form-item>
           </el-col>
@@ -266,6 +266,7 @@ import {
 import { CollectConfigForm, CollectConfigQuery, CollectConfigVO } from '@/api/supply/collectConfig/types';
 import { listCloudPlatformOptions } from '@/api/supply/cloudPlatform';
 import { CloudPlatformOption } from '@/api/supply/cloudPlatform/types';
+import { createSupplyValidation } from '@/views/supply/common/validationEngine';
 import CollectLogDialog from './components/CollectLogDialog.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -328,11 +329,8 @@ const initFormData = (): CollectConfigForm & {
 
 const form = ref(initFormData());
 
-const rules = reactive<FormRules<typeof form.value>>({
-  cloudPlatformId: [{ required: true, message: '云平台不能为空', trigger: 'change' }],
-  collectScope: [{ required: true, message: '采集范围不能为空', trigger: 'change' }],
-  collectMode: [{ required: true, message: '采集模式不能为空', trigger: 'change' }]
-});
+const validationScene = computed(() => (form.value.collectConfigId !== undefined ? 'edit' : 'add'));
+const { rules, isFieldRequired, normalizePayload, applyDefaults } = createSupplyValidation('collectConfig', validationScene, form);
 
 const authTypeOptions = computed<DictDataOption[]>(() => supply_auth_type.value || []);
 
@@ -368,6 +366,7 @@ const normalizePlatformOptions = (rows: any[]): CloudPlatformOption[] => {
 
 const resetForm = () => {
   form.value = initFormData();
+  applyDefaults();
   formRef.value?.resetFields();
 };
 
@@ -423,6 +422,7 @@ const handleUpdate = async (row?: CollectConfigVO) => {
       scopeFilter: stringifyJsonValue(detail.scopeFilter),
       collectOptions: stringifyJsonValue(detail.collectOptions)
     });
+    applyDefaults();
   }
   dialog.visible = true;
   dialog.title = '修改采集配置';
@@ -470,12 +470,7 @@ const submitForm = () => {
     if (!valid) return;
     submitting.value = true;
     try {
-      const payload: CollectConfigForm = {
-        ...form.value,
-        authPayload: parseJsonIfPossible(form.value.authPayload),
-        scopeFilter: parseJsonIfPossible(form.value.scopeFilter),
-        collectOptions: parseJsonIfPossible(form.value.collectOptions)
-      };
+      const payload = normalizePayload() as CollectConfigForm;
       if (payload.collectConfigId !== undefined) {
         await updateCollectConfig(payload);
       } else {
@@ -493,4 +488,11 @@ const submitForm = () => {
 onMounted(async () => {
   await Promise.all([getPlatformOptionList(), getList()]);
 });
+
+watch(
+  () => form.value.authType,
+  () => {
+    formRef.value?.clearValidate(['authPayload']);
+  }
+);
 </script>
