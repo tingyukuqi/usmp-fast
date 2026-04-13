@@ -2,9 +2,9 @@
   <div class="app-container home">
     <el-row :gutter="20">
       <el-col :sm="24" :lg="12" style="padding-left: 20px">
-        <h2>xxxxxx-云监管平台多租户管理系统</h2>
+        <h2>QZCA-云监管平台多租户管理系统</h2>
         <p>
-          xxxxxx-云监管平台 是基于 RuoYi-Vue 针对 分布式集群 场景升级(不兼容原框架)
+          QZCA-云监管平台 是基于 RuoYi-Vue 针对 分布式集群 场景升级(不兼容原框架)
           <br />
           * 前端开发框架 Vue3、TS、Element Plus<br />
           * 后端开发框架 Spring Boot<br />
@@ -34,22 +34,22 @@
           * 国际化 SpringMessage Spring标准国际化方案<br />
         </p>
         <p><b>当前版本:</b> <span>v5.6.0</span></p>
-        <p>
+        <!-- <p>
           <el-tag type="danger">&yen;免费开源</el-tag>
-        </p>
-        <p>
-          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://gitee.com/dromara/xxxxxx-云监管平台')">访问码云</el-button>
-          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://github.com/dromara/xxxxxx-云监管平台')">访问GitHub</el-button>
-          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://plus-doc.dromara.org/#/xxxxxx-云监管平台/changlog')"
+        </p> -->
+        <!-- <p>
+          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://gitee.com/dromara/QZCA-云监管平台')">访问码云</el-button>
+          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://github.com/dromara/QZCA-云监管平台')">访问GitHub</el-button>
+          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://plus-doc.dromara.org/#/QZCA-云监管平台/changlog')"
             >更新日志</el-button
           >
-        </p>
+        </p> -->
       </el-col>
 
       <el-col :sm="24" :lg="12" style="padding-left: 20px">
-        <h2>RuoYi-Cloud-Plus多租户微服务管理系统</h2>
+        <h2>QZCA-云监管平台多租户微服务管理系统</h2>
         <p>
-          RuoYi-Cloud-Plus 微服务通用权限管理系统 重写 RuoYi-Cloud 全方位升级(不兼容原框架)
+          QZCA-云监管平台 微服务通用权限管理系统 重写 RuoYi-Cloud 全方位升级(不兼容原框架)
           <br />
           * 前端开发框架 Vue3、TS、Element UI<br />
           * 后端开发框架 Spring Boot<br />
@@ -78,16 +78,16 @@
           * 其余与 Vue 版本一致<br />
         </p>
         <p><b>当前版本:</b> <span>v2.6.0</span></p>
-        <p>
+        <!-- <p>
           <el-tag type="danger">&yen;免费开源</el-tag>
-        </p>
-        <p>
-          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://gitee.com/dromara/RuoYi-Cloud-Plus')">访问码云</el-button>
-          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://github.com/dromara/RuoYi-Cloud-Plus')">访问GitHub</el-button>
-          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://plus-doc.dromara.org/#/ruoyi-cloud-plus/changlog')"
+        </p> -->
+        <!-- <p>
+          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://gitee.com/dromara/QZCA-云监管平台')">访问码云</el-button>
+          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://github.com/dromara/QZCA-云监管平台')">访问GitHub</el-button>
+          <el-button type="primary" icon="Cloudy" plain @click="goTarget('https://plus-doc.dromara.org/#/QZCA-云监管平台/changlog')"
             >更新日志</el-button
           >
-        </p>
+        </p> -->
       </el-col>
     </el-row>
     <el-divider />

@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-const url = ref('https://gitee.com/dromara/xxxxxx-云监管平台');
+const url = ref('https://gitee.com/dromara/QZCA-云监管平台');
 
 function goto() {
   window.open(url.value);

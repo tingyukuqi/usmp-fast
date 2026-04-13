@@ -8,8 +8,8 @@
 
 | 介绍         | 项目名              | 项目地址                                                                                                                                                                           |
 |------------|:-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 🔥 分布式集群框架 | xxxxxx-云监管平台   | - [Gitee](https://gitee.com/dromara/xxxxxx-云监管平台)<br> - [GitHub](https://github.com/dromara/xxxxxx-云监管平台)<br> - [GitCode](https://gitcode.com/dromara/xxxxxx-云监管平台)      |
-| 🔥 微服务框架   | RuoYi-Cloud-Plus | - [Gitee](https://gitee.com/dromara/RuoYi-Cloud-Plus)<br>- [GitHub](https://github.com/dromara/RuoYi-Cloud-Plus)<br> - [GitCode](https://gitcode.com/dromara/RuoYi-Cloud-Plus) |
+| 🔥 分布式集群框架 | QZCA-云监管平台   | - [Gitee](https://gitee.com/dromara/QZCA-云监管平台)<br> - [GitHub](https://github.com/dromara/QZCA-云监管平台)<br> - [GitCode](https://gitcode.com/dromara/QZCA-云监管平台)      |
+| 🔥 微服务框架   | QZCA-云监管平台 | - [Gitee](https://gitee.com/dromara/QZCA-云监管平台)<br>- [GitHub](https://github.com/dromara/QZCA-云监管平台)<br> - [GitCode](https://gitcode.com/dromara/QZCA-云监管平台) |
 
 ## 分支说明
 

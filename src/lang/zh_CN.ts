@@ -2,7 +2,7 @@ export default {
   // 路由国际化
   route: {
     dashboard: '首页',
-    document: '项目文档'
+    // document: '项目文档'
   },
   // 登录页面国际化
   login: {
@@ -74,7 +74,7 @@ export default {
     full: '全屏',
     language: '语言',
     dashboard: '首页',
-    document: '项目文档',
+    // document: 'QZCA-云监管平台',
     message: '消息',
     layoutSize: '布局大小',
     selectTenant: '选择租户',
