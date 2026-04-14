@@ -4,6 +4,19 @@ export interface SupplierBoundUser {
   nickName?: string;
 }
 
+export interface SupplierUserBindingVO extends BaseEntity {
+  bindingId?: string | number;
+  supplierId?: string | number;
+  userId: string | number;
+  deptId?: string | number;
+  userName?: string;
+  nickName?: string;
+  phonenumber?: string;
+  email?: string;
+  status?: string;
+  createTime?: string;
+}
+
 export interface SupplierVO extends BaseEntity {
   supplierId: string | number;
   supplierCode: string;

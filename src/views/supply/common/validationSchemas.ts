@@ -112,12 +112,10 @@ export const supplyValidationSchemas = {
   },
   supplierUserBinding: {
     submit: {
-      requiredFields: ['userIds'],
+      requiredFields: [],
       conditionalRequired: [],
       payloadFieldMap: {},
-      fields: {
-        userIds: { required: true, message: '至少选择一个用户', trigger: 'change' }
-      }
+      fields: {}
     }
   },
   physicalResource: {

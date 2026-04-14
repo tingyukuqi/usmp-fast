@@ -110,6 +110,7 @@
 <script setup name="SupplierManagement" lang="ts">
 import { changeSupplierStatus, delSupplier, getSupplier, listSupplier } from '@/api/supply/supplier';
 import { SupplierBoundUser, SupplierQuery, SupplierVO } from '@/api/supply/supplier/types';
+import { extractSupplierBoundUsers } from './supplierBoundUsers';
 import SupplierFormDialog from './components/SupplierFormDialog.vue';
 import SupplierManageDrawer from './components/SupplierManageDrawer.vue';
 
@@ -161,9 +162,7 @@ const resolveTotal = (resp: any, rows: any[]) => {
   return rows.length;
 };
 
-const resolveBoundUsers = (data: any): SupplierBoundUser[] => {
-  return Array.isArray(data?.users) ? data.users : [];
-};
+const resolveBoundUsers = (data: any): SupplierBoundUser[] => extractSupplierBoundUsers(data);
 
 const getList = async () => {
   loading.value = true;

@@ -103,18 +103,21 @@ import { UserQuery, UserVO } from '@/api/system/user/types';
 import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
 import { VxeTableInstance } from 'vxe-table';
 import useDialog from '@/hooks/useDialog';
+import { normalizeSelectedUsers, resolveUserRows } from './userSelect';
 
 interface PropType {
   modelValue?: UserVO[] | UserVO | undefined;
   multiple?: boolean;
   data?: string | number | (string | number)[] | undefined;
   userIds?: string | number | (string | number)[] | undefined;
+  listMethod?: ((query: UserQuery) => Promise<any>) | undefined;
 }
 const prop = withDefaults(defineProps<PropType>(), {
   multiple: true,
   modelValue: undefined,
   data: undefined,
-  userIds: undefined
+  userIds: undefined,
+  listMethod: undefined
 });
 const emit = defineEmits(['update:modelValue', 'confirmCallBack']);
 
@@ -199,10 +202,11 @@ const getTreeSelect = async () => {
 const getList = async () => {
   loading.value = true;
   queryParams.value.userIds = prop.userIds;
-  const res = await api.listUser(proxy?.addDateRange(queryParams.value, dateRange.value));
+  const query = proxy?.addDateRange(queryParams.value, dateRange.value);
+  const res = prop.listMethod ? await prop.listMethod(query) : await api.listUser(query);
   loading.value = false;
-  userList.value = res.rows;
-  total.value = res.total;
+  userList.value = resolveUserRows(res);
+  total.value = typeof res?.total === 'number' ? res.total : typeof res?.data?.total === 'number' ? res.data.total : userList.value.length;
 };
 
 const pageList = async () => {
@@ -273,6 +277,17 @@ const handleCloseTag = (user: UserVO) => {
 };
 
 const initSelectUser = async () => {
+  const selectedUsers = normalizeSelectedUsers(prop.modelValue);
+  if (selectedUsers.length > 0) {
+    selectUserList.value = selectedUsers;
+    const users = userList.value.filter((item) => {
+      return selectedUsers.some((user) => String(user.userId) === String(item.userId));
+    });
+    await nextTick(() => {
+      tableRef.value.setCheckboxRow(users, true);
+    });
+    return;
+  }
   if (defaultSelectUserIds.value.length > 0) {
     const { data } = await api.optionSelect(defaultSelectUserIds.value);
     selectUserList.value = data;

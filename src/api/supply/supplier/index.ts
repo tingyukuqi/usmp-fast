@@ -1,10 +1,12 @@
 import request from '@/utils/request';
+import { UserQuery, UserVO } from '@/api/system/user/types';
 import {
   SupplierForm,
   SupplierPlatformAccountForm,
   SupplierQuery,
   SupplierStatusForm,
   SupplierUserBindingForm,
+  SupplierUserBindingVO,
   SupplierVO,
   SupplierPlatformAccountVO,
   SupplierOption,
@@ -101,6 +103,21 @@ export const updateSupplierUsers = (supplierId: string | number, data: SupplierU
     url: `/supply/suppliers/${supplierId}/users`,
     method: 'put',
     data
+  });
+};
+
+export const listSupplierUsers = (supplierId: string | number): AxiosPromise<SupplierUserBindingVO[]> => {
+  return request({
+    url: `/supply/suppliers/${supplierId}/users`,
+    method: 'get'
+  });
+};
+
+export const listBindableSupplierUsers = (supplierId: string | number, query?: UserQuery): AxiosPromise<UserVO[]> => {
+  return request({
+    url: `/supply/suppliers/${supplierId}/bindable-users`,
+    method: 'get',
+    params: query
   });
 };
 

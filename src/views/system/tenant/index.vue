@@ -5,24 +5,31 @@
         <el-card shadow="hover">
           <el-form ref="queryFormRef" :model="queryParams" label-width="68px">
             <el-row :gutter="16">
-              <el-col :span="5">
+              <el-col :span="4">
                 <el-form-item label="租户编号" prop="tenantId">
                   <el-input v-model="queryParams.tenantId" placeholder="请输入租户编号" clearable style="width: 100%" @keyup.enter="handleQuery" />
                 </el-form-item>
               </el-col>
-              <el-col :span="5">
+              <el-col :span="4">
                 <el-form-item label="联系人" prop="contactUserName">
                   <el-input v-model="queryParams.contactUserName" placeholder="请输入联系人" clearable style="width: 100%" @keyup.enter="handleQuery" />
                 </el-form-item>
               </el-col>
-              <el-col :span="5">
+              <el-col :span="4">
                 <el-form-item label="联系电话" prop="contactPhone">
                   <el-input v-model="queryParams.contactPhone" placeholder="请输入联系电话" clearable style="width: 100%" @keyup.enter="handleQuery" />
                 </el-form-item>
               </el-col>
-              <el-col :span="5">
+              <el-col :span="4">
                 <el-form-item label="企业名称" prop="companyName">
                   <el-input v-model="queryParams.companyName" placeholder="请输入企业名称" clearable style="width: 100%" @keyup.enter="handleQuery" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
+                <el-form-item label="租户类型" prop="tenantType">
+                  <el-select v-model="queryParams.tenantType" placeholder="请选择租户类型" clearable style="width: 100%">
+                    <el-option v-for="item in tenantTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
+                  </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="4">
@@ -73,6 +80,11 @@
         <el-table-column label="联系人" align="center" prop="contactUserName" />
         <el-table-column label="联系电话" align="center" prop="contactPhone" />
         <el-table-column label="企业名称" align="center" prop="companyName" />
+        <el-table-column label="租户类型" align="center" min-width="120">
+          <template #default="scope">
+            <span>{{ getTenantTypeLabel(scope.row, tenantTypeOptions) }}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="社会信用代码" align="center" prop="licenseNumber" />
         <el-table-column label="过期时间" align="center" prop="expireTime" width="180">
           <template #default="scope">
@@ -119,6 +131,11 @@
         </el-form-item>
         <el-form-item v-if="!form.id" label="用户密码" prop="password">
           <el-input v-model="form.password" type="password" placeholder="请输入系统用户密码" maxlength="20" />
+        </el-form-item>
+        <el-form-item label="租户类型" prop="tenantType">
+          <el-select v-model="form.tenantType" placeholder="请选择租户类型" clearable style="width: 100%">
+            <el-option v-for="item in tenantTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="租户套餐" prop="packageId">
           <el-select v-model="form.packageId" :disabled="!!form.tenantId" placeholder="请选择租户套餐" clearable style="width: 100%">
@@ -170,10 +187,13 @@ import {
   syncTenantDict,
   syncTenantConfig
 } from '@/api/system/tenant';
+import { getDicts } from '@/api/system/dict/data';
 import { selectTenantPackage } from '@/api/system/tenantPackage';
 import { useUserStore } from '@/store/modules/user';
 import { TenantForm, TenantQuery, TenantVO } from '@/api/system/tenant/types';
 import { TenantPkgVO } from '@/api/system/tenantPackage/types';
+import { DictDataVO } from '@/api/system/dict/data/types';
+import { getTenantTypeLabel } from './tenantType';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
@@ -188,6 +208,13 @@ const ids = ref<Array<string | number>>([]);
 const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
+const tenantTypeOptions = ref<DictDataOption[]>([]);
+const defaultTenantTypeOptions: DictDataOption[] = [
+  { label: '平台运营', value: 'platform_operation' },
+  { label: '平台监管', value: 'platform_regulation' },
+  { label: '云租户', value: 'cloud_tenant' },
+  { label: '代维服务商', value: 'service_provider' }
+];
 
 const queryFormRef = ref<ElFormInstance>();
 const tenantFormRef = ref<ElFormInstance>();
@@ -205,6 +232,7 @@ const initFormData: TenantForm = {
   username: '',
   password: '',
   companyName: '',
+  tenantType: 'platform_operation',
   licenseNumber: '',
   domain: '',
   address: '',
@@ -223,7 +251,8 @@ const data = reactive<PageData<TenantForm, TenantQuery>>({
     tenantId: '',
     contactUserName: '',
     contactPhone: '',
-    companyName: ''
+    companyName: '',
+    tenantType: ''
   },
   rules: {
     id: [{ required: true, message: 'id不能为空', trigger: 'blur' }],
@@ -231,6 +260,7 @@ const data = reactive<PageData<TenantForm, TenantQuery>>({
     contactUserName: [{ required: true, message: '联系人不能为空', trigger: 'blur' }],
     contactPhone: [{ required: true, message: '联系电话不能为空', trigger: 'blur' }],
     companyName: [{ required: true, message: '企业名称不能为空', trigger: 'blur' }],
+    tenantType: [{ required: true, message: '租户类型不能为空', trigger: 'change' }],
     username: [
       { required: true, message: '用户名不能为空', trigger: 'blur' },
       { min: 2, max: 20, message: '用户名称长度必须介于 2 和 20 之间', trigger: 'blur' }
@@ -248,6 +278,26 @@ const { queryParams, form, rules } = toRefs(data);
 const getTenantPackage = async () => {
   const res = await selectTenantPackage();
   packageList.value = res.data;
+};
+
+/** 查询租户类型字典 */
+const getTenantTypeOptions = async () => {
+  try {
+    const res = await getDicts('sys_tenant_type');
+    const options = (res.data || []).map((item: DictDataVO) => ({
+      label: item.dictLabel,
+      value: item.dictValue,
+      elTagType: item.listClass,
+      elTagClass: item.cssClass
+    }));
+    tenantTypeOptions.value = options.length ? options : [...defaultTenantTypeOptions];
+    if (!options.length) {
+      proxy?.$modal.msgWarning('租户类型字典未配置，已使用默认租户类型选项');
+    }
+  } catch {
+    tenantTypeOptions.value = [...defaultTenantTypeOptions];
+    proxy?.$modal.msgWarning('租户类型字典加载失败，已使用默认租户类型选项');
+  }
 };
 
 /** 查询租户列表 */
@@ -303,9 +353,9 @@ const handleSelectionChange = (selection: TenantVO[]) => {
 };
 
 /** 新增按钮操作 */
-const handleAdd = () => {
+const handleAdd = async () => {
   reset();
-  getTenantPackage();
+  await Promise.all([getTenantPackage(), getTenantTypeOptions()]);
   dialog.visible = true;
   dialog.title = '添加租户';
 };
@@ -313,7 +363,7 @@ const handleAdd = () => {
 /** 修改按钮操作 */
 const handleUpdate = async (row?: TenantVO) => {
   reset();
-  await getTenantPackage();
+  await Promise.all([getTenantPackage(), getTenantTypeOptions()]);
   const _id = row?.id || ids.value[0];
   const res = await getTenant(_id);
   Object.assign(form.value, res.data);
@@ -389,6 +439,7 @@ const handleSyncTenantConfig = async () => {
 };
 
 onMounted(() => {
+  getTenantTypeOptions();
   getList();
 });
 </script>

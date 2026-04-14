@@ -5,6 +5,8 @@ export interface TenantVO extends BaseEntity {
   contactUserName: string;
   contactPhone: string;
   companyName: string;
+  tenantType?: string;
+  tenantTypeLabel?: string;
   licenseNumber: string;
   address: string;
   domain: string;
@@ -24,6 +26,8 @@ export interface TenantQuery extends PageQuery {
   contactPhone: string;
 
   companyName: string;
+
+  tenantType?: string;
 }
 
 export interface TenantForm {
@@ -34,6 +38,7 @@ export interface TenantForm {
   contactUserName: string;
   contactPhone: string;
   companyName: string;
+  tenantType?: string;
   licenseNumber: string;
   domain: string;
   address: string;
